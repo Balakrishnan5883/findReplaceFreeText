@@ -1,0 +1,9 @@
+<Project>
+  <PropertyGroup>
+    <BaseOutputPath>$([System.IO.Path]::GetTempPath())DotNetBuilds\$(MSBuildProjectName)\bin\</BaseOutputPath>
+    <BaseIntermediateOutputPath>$([System.IO.Path]::GetTempPath())DotNetBuilds\$(MSBuildProjectName)\obj\</BaseIntermediateOutputPath>
+
+
+    <DefaultItemExcludes>$(DefaultItemExcludes);bin\**;obj\**</DefaultItemExcludes>
+  </PropertyGroup>
+</Project>

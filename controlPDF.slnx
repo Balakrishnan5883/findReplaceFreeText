@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="FindReplaceFreeText/FindReplaceFreeText.csproj" />
+  <Project Path="TestFindReplaceFreeText/TestFindReplaceFreeText.csproj" />
+</Solution>

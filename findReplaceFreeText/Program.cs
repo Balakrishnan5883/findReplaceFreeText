@@ -1,54 +1,48 @@
-﻿using System.Linq;
-using PdfSharp.Pdf;
-using PdfSharp.Pdf.Advanced;
-using PdfSharp.Pdf.Annotations;
-using PdfSharp.Pdf.IO;
-using System.Text;
+﻿
+using Core;
+using Models;
+using static Core.FreeTextReplacer;
+using System.Reflection;
 
-string sourcePdfPath = @"G:\My Drive\Projects\C# Projects\control PDF\sample PDF\metamorphosis.pdf";
-string outputPdfPath = @"G:\My Drive\Projects\C# Projects\control PDF\sample PDF\output.pdf";
 
-PdfDocument sourcePdfObject = PdfReader.Open(sourcePdfPath, PdfDocumentOpenMode.Modify);
+namespace FindReplaceFreeText;
 
-foreach (PdfPage page in sourcePdfObject.Pages)
+
+public static class Program
 {
-    if (page.Annotations.Count == 0)
+    
+    public static void MainProcedure(string[]args)
     {
-        Console.WriteLine("No annotations found");
-        continue;
+        string[] resources = Assembly.GetExecutingAssembly().GetManifestResourceNames();
+
+        var _ = new FreeTextReplacer(fontResourcePath:"FindReplaceFreeText.Resources.Fonts");
+        if(args.Length == 0)
+        {
+            throw new ArgumentNullException(nameof(args));
+        }
+        List<PdfInputStore> pdfData;
+        pdfData = TransformInputStringToRequiredObjects(args);
+        foreach(PdfInputStore data in pdfData)
+        {
+            
+            FindReplaceFreeTextPdf(sourcePdfPath:data.SourcePdfPath,destinationPdfPath:data.DestinationPdfPath,
+                                    findReplaceStringPairs:data.FindReplaceTextPairs);
+        }
+        
     }
 
-    foreach (PdfAnnotation annotation in page.Annotations)
+    public static void Main(string[] args)
     {
-        var subtype = annotation.Elements.GetString("/Subtype");
-        if (subtype == "/FreeText")
+        try
         {
-            // Update the contents of the free text annotation
-            annotation.Elements.SetValue("/Contents", new PdfString("hii"));
-
-            Console.WriteLine(annotation.Elements.GetValue("/Contents"));
-
-            if (annotation.Elements["/AP"] is PdfDictionary appearanceDictionary &&
-                appearanceDictionary.Elements["/N"] is PdfObjectStream normalAppearance)
-            {
-                // Read the existing appearance stream content
-                string existingContent = Encoding.ASCII.GetString(normalAppearance.Stream.Value);
-
-                Console.WriteLine(existingContent);
-
-                // Replace the old text with the new text
-                string updatedContent = existingContent.Replace("hello", "hii");
-
-                Console.WriteLine(updatedContent);
-
-                // Write the updated content back to the appearance stream
-                normalAppearance.Stream.Value = Encoding.ASCII.GetBytes(updatedContent);
-
-                // Update the appearance stream dictionary
-                appearanceDictionary.Elements.SetReference("/N", normalAppearance);
-            }
+            MainProcedure(args);
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"[{ex.GetType().Name}]-{ex.Message}");
+            return ;
         }
     }
+    
 }
 
-sourcePdfObject.Save(outputPdfPath);
